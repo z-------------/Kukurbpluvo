@@ -1,8 +1,11 @@
 package yy.zacharyguard.kukurbpluvo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -11,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,9 +24,14 @@ public class Main extends JavaPlugin {
 	
 	Logger logger = getLogger();
 	
+	List<String> gourdRemarks = new ArrayList<String>();
+	
 	@Override
     public void onEnable() {
 		logger.info("Ready to bash.");
+		
+		gourdRemarks.add("You have been caught off GOURD!");
+		gourdRemarks.add("Get BASHED!");
     }
    
     @Override
@@ -35,18 +44,17 @@ public class Main extends JavaPlugin {
             Command command,
             String label,
             String[] args) {
-        if (command.getName().equalsIgnoreCase("bash")) {
+        if (command.getName().equalsIgnoreCase("bash") && sender instanceof Player) {
+        	String randomGourdRemark = gourdRemarks.get((int) (Math.random() * gourdRemarks.size()));
+        	sender.sendMessage(ChatColor.DARK_PURPLE + randomGourdRemark);
+        	
         	Location playerLocation = ((Entity) sender).getLocation();
         	double playerX = playerLocation.getX();
         	double playerY = playerLocation.getY();
         	double playerZ = playerLocation.getZ();
         	World world = playerLocation.getWorld();
-        	
-            sender.sendMessage("Your location: " + playerX + " <y> " + playerZ);
             
             int highestBlockY = world.getHighestBlockYAt(playerLocation);
-            
-            sender.sendMessage("Y-coord of highest block: " + highestBlockY);
             
             double spawnCenterX = playerX;
             double spawnCenterY = (double) world.getMaxHeight();
@@ -88,7 +96,6 @@ public class Main extends JavaPlugin {
                             		public void run() {
                             			Location landedLocation = fallingBlock.getLocation();
                             			Block block = landedLocation.getBlock();
-                            			logger.info(block.getType().toString());
                                     	if (block.getType() == Material.PUMPKIN) {
                                     		block.setType(Material.AIR);
                                     		world.createExplosion(
