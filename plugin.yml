@@ -1,0 +1,11 @@
+main: yy.zacharyguard.kukurbpluvo.Main
+name: Kukurbpluvo
+version: 0.0.0
+author: Zachary Guard
+description: Gxi pluvas kukurboj!
+commands:
+  bash:
+    description: Make it rain gourds.
+    usage: /bash
+    permission: bukkit.op
+    permission-message: Only ops (those with bukkit.op permission) are authorized to bash.
