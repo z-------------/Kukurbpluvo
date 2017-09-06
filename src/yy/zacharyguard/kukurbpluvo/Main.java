@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,12 +45,28 @@ public class Main extends JavaPlugin {
             Command command,
             String label,
             String[] args) {
-        if (command.getName().equalsIgnoreCase("bash") && sender instanceof Player) {
-        	String randomGourdRemark = gourdRemarks.get((int) (Math.random() * gourdRemarks.size()));
-        	sender.sendMessage(ChatColor.DARK_PURPLE + randomGourdRemark);
+        if (command.getName().equalsIgnoreCase("bash")) {
         	
-        	Location playerLocation = ((Entity) sender).getLocation();
-        	double playerX = playerLocation.getX();
+        	Entity targetPlayer;
+        	
+        	if (args.length == 1) { // has username argument
+        		String targetUsername = args[0];
+        		targetPlayer = (Entity) Bukkit.getPlayer(targetUsername);
+        		if (targetPlayer == null) {
+        			sender.sendMessage("Could not find user " + targetUsername + ".");
+        			return false;
+        		}
+        	} else if (sender instanceof Player) { // no arguments and sender is Player
+        		targetPlayer = (Entity) sender;
+        	} else { // no arguments and sender is not Player
+        		sender.sendMessage("Target username must be supplied if calling from console.");
+        		return false;
+        	}
+        	
+    		String randomGourdRemark = gourdRemarks.get((int) (Math.random() * gourdRemarks.size()));
+        	targetPlayer.sendMessage(ChatColor.DARK_PURPLE + randomGourdRemark);
+        	
+    		Location playerLocation = targetPlayer.getLocation();double playerX = playerLocation.getX();
         	double playerY = playerLocation.getY();
         	double playerZ = playerLocation.getZ();
         	World world = playerLocation.getWorld();
@@ -89,7 +106,10 @@ public class Main extends JavaPlugin {
                         @Override
                         public void run() {
                             Block blockUnder = fallingBlock.getLocation().subtract(0, 1, 0).getBlock();
-                            if (blockUnder.getType() != Material.AIR) {
+                            Material blockUnderType = blockUnder.getType();
+                            if (blockUnderType != Material.AIR 
+                            		&& blockUnderType != Material.WATER 
+                            		&& blockUnderType != Material.STATIONARY_WATER) {
                             	scheduler.cancelTask(taskMap.get(squareSize * thisI + thisK));
                             	scheduler.runTaskLater(thisPlugin, new Runnable() {
                             		@Override
