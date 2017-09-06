@@ -48,8 +48,12 @@ public class Main extends JavaPlugin {
         if (command.getName().equalsIgnoreCase("bash")) {
         	
         	Entity targetPlayer;
+            final int squareSize;
+            
+            int defaultSquareSize = 5;
+            int maxSquareSize = 20;
         	
-        	if (args.length == 1) { // has username argument
+        	if (args.length >= 1) { // has username argument and maybe size argument
         		String targetUsername = args[0];
         		targetPlayer = (Entity) Bukkit.getPlayer(targetUsername);
         		if (targetPlayer == null) {
@@ -63,10 +67,23 @@ public class Main extends JavaPlugin {
         		return false;
         	}
         	
+        	if (args.length >= 2) {
+    			int proposedSquareSize = Integer.parseInt(args[1]);
+    			if (proposedSquareSize <= maxSquareSize) {
+    				squareSize = proposedSquareSize;
+    			} else {
+    				squareSize = maxSquareSize;
+    				sender.sendMessage("Maximum square size is " + Integer.toString(maxSquareSize) + ".");
+    			}
+    		} else {
+    			squareSize = defaultSquareSize;
+    		}
+        	
     		String randomGourdRemark = gourdRemarks.get((int) (Math.random() * gourdRemarks.size()));
         	targetPlayer.sendMessage(ChatColor.DARK_PURPLE + randomGourdRemark);
         	
-    		Location playerLocation = targetPlayer.getLocation();double playerX = playerLocation.getX();
+    		Location playerLocation = targetPlayer.getLocation();
+    		double playerX = playerLocation.getX();
         	double playerY = playerLocation.getY();
         	double playerZ = playerLocation.getZ();
         	World world = playerLocation.getWorld();
@@ -80,8 +97,6 @@ public class Main extends JavaPlugin {
             if (highestBlockY > playerY) {
             	spawnCenterY = (double) (highestBlockY - 1);
             }
-            
-            int squareSize = 5;
             
             double spawnCornerX = spawnCenterX - 2 * ((squareSize - 1) / 2);
             double spawnCornerZ = spawnCenterZ - 2 * ((squareSize - 1) / 2);
